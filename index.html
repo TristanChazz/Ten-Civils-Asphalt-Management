@@ -1,400 +1,412 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no" />
-  <title>TC Construction | Pave Ops</title>
-  <meta name="theme-color" content="#151b22">
-  <link rel="manifest" href="manifest.json">
-  <style>
-    /* TC CONSTRUCTION THEME - Colors extracted from brand logo */
-    :root {
-      --bg-main: #151b22;
-      --bg-panel: #1e2630;
-      --bg-input: #0d1117;
-      --accent: #1f9d86;
-      --accent-hover: #19826f;
-      --warning: #f59e0b;
-      --danger: #e11d48;
-      --text-main: #f8fafc;
-      --text-muted: #94a3b8;
-      --border: #2d3745;
-    }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>TC Construction | Pave Ops</title>
+    <meta name="theme-color" content="#151b22">
+    <link rel="manifest" href="manifest.json">
+    
+    <script>
+        (function() {
+            const allowedDomains = [
+                "tristanchazz.github.io", 
+                "tencivilspaveops.netlify.app", 
+                "tc-paveops.vercel.app", 
+                "localhost", 
+                "127.0.0.1"
+            ];
+            const currentDomain = window.location.hostname;
+            const isAllowed = allowedDomains.some(domain => currentDomain.includes(domain));
+            if (!isAllowed) {
+                window.stop(); 
+                document.documentElement.innerHTML = "<head><title>Access Denied</title></head><body style='background:#151b22; color:#e11d48; display:flex; flex-direction:column; align-items:center; justify-content:center; height:100vh; font-family:sans-serif; margin:0; text-align:center; padding:20px;'><h1 style='font-weight:900; letter-spacing:2px; text-transform:uppercase;'>Security Breach:<br>Unauthorized Host</h1><p style='color:#f8fafc; margin-top:10px;'>This software is locked to Titan Digital Labs infrastructure. Access Denied.</p></body>";
+                throw new Error("Security Override: Execution Halted.");
+            }
+        })();
+    </script>
 
-    body { font-family: 'Segoe UI', Roboto, Helvetica, sans-serif; margin: 0; background: var(--bg-main); color: var(--text-main); antialiased; }
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
     
-    /* CUSTOM LOGO HEADER */
-    header { background: var(--bg-panel); color: var(--text-main); padding: 18px 20px; display: flex; align-items: center; justify-content: center; gap: 12px; border-bottom: 1px solid var(--accent); }
-    header img { height: 32px; object-fit: contain; }
-    header h2 { margin: 0; font-size: 1.2rem; text-transform: uppercase; letter-spacing: 2px; font-weight: 800; }
-    header span { color: var(--accent); }
-    
-    .wrap { max-width: 800px; margin: 16px auto; padding: 12px; }
-    .card { background: var(--bg-panel); padding: 20px; border-radius: 12px; margin-bottom: 20px; border: 1px solid var(--border); box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
-    
-    button { margin: 6px 4px; padding: 16px 24px; border-radius: 8px; border: 1px solid transparent; cursor: pointer; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1px; font-weight: bold; background: var(--accent); color: #fff; transition: all 0.2s; }
-    button:active { transform: scale(0.98); }
-    button.ghost { background: transparent; color: var(--text-main); border: 1px solid var(--border); }
-    button.danger { background: rgba(225, 29, 72, 0.1); color: var(--danger); border: 1px solid var(--danger); }
-    button:disabled { opacity: 0.5; cursor: not-allowed; }
-    .hidden { display: none !important; }
-    
-    /* SECURITY GATE STYLES */
-    #authGate { position: fixed; inset: 0; background: var(--bg-main); z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; }
-    .auth-box { background: var(--bg-panel); padding: 30px; border-radius: 12px; border: 1px solid var(--border); max-width: 400px; width: 100%; text-align: center; box-shadow: 0 10px 40px rgba(0,0,0,0.8); }
-    .auth-box img { height: 40px; margin-bottom: 15px; }
-    .auth-box input { width: 100%; padding: 12px; margin: 15px 0; background: var(--bg-input); border: 1px solid var(--border); color: var(--text-main); border-radius: 6px; font-size: 1rem; box-sizing: border-box; text-align: center; letter-spacing: 1px; }
-    .auth-box input:focus { border-color: var(--accent); outline: none; }
-    #authError { color: var(--danger); font-size: 0.85rem; margin-top: 10px; font-weight: bold; }
-
-    /* MODAL STYLES */
-    #mathModal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); backdrop-filter: blur(5px); z-index: 100; display: flex; align-items: center; justify-content: center; padding: 20px; box-sizing: border-box; }
-    .modal-content { background: var(--bg-panel); border: 1px solid var(--accent); border-radius: 12px; padding: 24px; width: 100%; max-width: 400px; max-height: 90vh; overflow-y: auto; }
-    .modal-content h3 { margin-top: 0; color: var(--accent); text-transform: uppercase; letter-spacing: 1px; font-size: 1.1rem; border-bottom: 1px solid var(--border); padding-bottom: 10px; }
-    .input-group { margin-bottom: 15px; }
-    .input-group label { display: block; font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; margin-bottom: 5px; letter-spacing: 1px; }
-    .input-group input[type="number"] { width: 100%; padding: 12px; background: var(--bg-input); border: 1px solid var(--border); color: var(--text-main); border-radius: 6px; font-size: 1rem; box-sizing: border-box; outline: none; }
-    .readonly-val { font-size: 1.2rem; font-weight: bold; color: var(--text-main); }
-    .liability-gate { background: rgba(245, 158, 11, 0.1); border: 1px solid var(--warning); padding: 16px; border-radius: 8px; margin-top: 20px; margin-bottom: 10px; }
-    .liability-gate label { display: flex; align-items: flex-start; gap: 12px; color: var(--text-main); cursor: pointer; text-transform: none; font-size: 0.9rem; font-weight: bold; }
-    .liability-gate input[type="checkbox"] { width: 22px; height: 22px; accent-color: var(--warning); flex-shrink: 0; margin-top: 2px; }
-    
-    #status { margin-top: 12px; font-weight: bold; color: var(--accent); text-align: center; font-size: 0.85rem; letter-spacing: 1px; text-transform: uppercase; }
-    
-    .controls { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-top: 10px; }
-    .field { display: flex; flex-direction: column; align-items: center; width: 100%; margin-bottom: 15px; border-bottom: 1px solid var(--border); padding-bottom: 15px;}
-    input[type="date"] { padding: 12px; border-radius: 6px; border: 1px solid var(--border); background: var(--bg-input); color: var(--text-main); font-size: 1rem; margin-bottom: 8px; width: 80%; max-width: 300px; color-scheme: dark;}
-    
-    .log-card { background: var(--bg-input); border: 1px solid var(--border); border-radius: 8px; padding: 16px; margin-bottom: 12px; font-size: 0.85rem; line-height: 1.5; position: relative; }
-    .log-card strong { color: var(--text-muted); text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.5px; }
-    .log-card span { color: var(--text-main); margin-right: 12px; font-weight: 500; }
-    .log-card .highlight { color: var(--accent); font-weight: bold; font-size: 0.95rem; }
-    .log-card .header-row { display: flex; justify-content: space-between; border-bottom: 1px solid var(--border); padding-bottom: 8px; margin-bottom: 8px; align-items: center; }
-    .log-card .timestamp { color: var(--accent); font-family: monospace; font-size: 0.8rem; }
-    .del-btn { padding: 6px 12px; font-size: 0.7rem; border-radius: 4px; }
-    
-    .camera-wrap { position: relative; width: 100%; max-width: 500px; margin: 0 auto 16px auto; }
-    .camera-square { width: 100%; padding-top: 100%; position: relative; overflow: hidden; border-radius: 8px; background: #000; border: 1px solid var(--border); }
-    .camera-square video { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); width: auto; height: 100%; min-width: 100%; min-height: 100%; object-fit: cover; }
-    .finder { position: absolute; top: 50%; left: 50%; width: 70%; height: 70%; transform: translate(-50%,-50%); box-sizing: border-box; pointer-events: none; border: 2px solid rgba(31, 157, 134, 0.5); border-radius: 6px; box-shadow: 0 0 0 9999px rgba(0,0,0,0.6) inset; }
-    .finder::before, .finder::after, .finder span::before, .finder span::after { content: ""; position: absolute; background: var(--accent); border-radius: 2px; }
-    .finder::before { top: -2px; left: -2px; width: 28px; height: 4px; }
-    .finder::after { bottom: -2px; right: -2px; width: 28px; height: 4px; }
-    .finder span::before { top: -2px; right: -2px; width: 4px; height: 28px; }
-    .finder span::after { bottom: -2px; left: -2px; width: 4px; height: 28px; }
-    
-    .footer-brand { text-align: center; margin-top: 40px; font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 2px; padding-bottom: 20px;}
-  </style>
-
- <script>
-    // --- 1. DOMAIN LOCK SECURITY (MULTI-CLOUD) ---
-    (function() {
-        const allowedDomains = [
-            "tristanchazz.github.io",       // GitHub Pages Production
-            "tencivilspaveops.netlify.app", // Netlify Production
-            "tc-paveops.vercel.app",        // Vercel Production
-            "localhost",                    // Local Testing
-            "127.0.0.1"                     // Local Testing
-        ];
-        
-        const currentDomain = window.location.hostname;
-        const isAllowed = allowedDomains.some(domain => currentDomain.includes(domain));
-        
-        if (!isAllowed) {
-            // Instantly stop the browser from processing any more HTML
-            window.stop(); 
-            
-            // Paint the security warning cleanly on the screen
-            document.documentElement.innerHTML = "<head><title>Access Denied</title></head><body style='background:#151b22; color:#e11d48; display:flex; flex-direction:column; align-items:center; justify-content:center; height:100vh; font-family:sans-serif; margin:0; text-align:center; padding:20px;'><h1 style='font-weight:900; letter-spacing:2px; text-transform:uppercase;'>Security Breach:<br>Unauthorized Host</h1><p style='color:#f8fafc; margin-top:10px;'>This software is locked to Titan Digital Labs infrastructure. Access Denied.</p></body>";
-            
-            // Throw a fatal JavaScript error to kill the rest of the application silently
-            throw new Error("Security Override: Execution Halted.");
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        themebg: 'var(--bg-app)',
+                        themepanel: 'var(--bg-panel)',
+                        themeinput: 'var(--bg-input)',
+                        themeborder: 'var(--border-color)',
+                        themetext: 'var(--text-main)',
+                        thememuted: 'var(--text-muted)',
+                        themeaccent: 'var(--theme-accent)',
+                        themehover: 'var(--theme-accent-hover)',
+                        themebtntext: 'var(--btn-text)'
+                    }
+                }
+            }
         }
-    })();
-  </script>
+    </script>
 
+    <style>
+        body { font-family: 'Inter', sans-serif; transition: background-color 0.3s ease, color 0.3s ease; }
+        .font-code { font-family: 'JetBrains Mono', monospace; }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: var(--bg-app); }
+        ::-webkit-scrollbar-thumb { background: var(--theme-accent); border-radius: 10px; }
+
+        /* TC CONSTRUCTION THEME DICTIONARY */
+        :root {
+            --bg-app: #151b22; 
+            --bg-panel: #1e2630; 
+            --bg-input: #0d1117; 
+            --border-color: #2d3745; 
+            --text-main: #f8fafc; 
+            --text-muted: #94a3b8; 
+            --theme-accent: #1f9d86; 
+            --theme-accent-hover: #19826f; 
+            --btn-text: #ffffff;
+        }
+
+        /* CUSTOM CSS FOR CAMERA FINDER */
+        .camera-square { width: 100%; padding-top: 100%; position: relative; overflow: hidden; border-radius: 12px; background: #000; border: 1px solid var(--border-color); }
+        .camera-square video { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); width: auto; height: 100%; min-width: 100%; min-height: 100%; object-fit: cover; }
+        .finder { position: absolute; top: 50%; left: 50%; width: 70%; height: 70%; transform: translate(-50%,-50%); box-sizing: border-box; pointer-events: none; border: 2px solid rgba(31, 157, 134, 0.5); border-radius: 6px; box-shadow: 0 0 0 9999px rgba(0,0,0,0.6) inset; }
+        .finder::before, .finder::after, .finder span::before, .finder span::after { content: ""; position: absolute; background: var(--theme-accent); border-radius: 2px; }
+        .finder::before { top: -2px; left: -2px; width: 28px; height: 4px; }
+        .finder::after { bottom: -2px; right: -2px; width: 28px; height: 4px; }
+        .finder span::before { top: -2px; right: -2px; width: 4px; height: 28px; }
+        .finder span::after { bottom: -2px; left: -2px; width: 4px; height: 28px; }
+    </style>
 </head>
-<body>
+<body class="bg-themebg text-themetext p-4 md:p-8 antialiased selection:bg-themeaccent selection:text-themebtntext transition-colors duration-500">
 
-  <div id="authGate">
-    <div class="auth-box">
-        <img src="assets/tc-logo.png" alt="TC Construction Logo" onerror="this.style.display='none'">
-        <h2 style="margin-top: 0; color: var(--text-main);"><span>|</span> Pave Ops</h2>
-        <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 20px;">Enter your enterprise license key to unlock the environment.</p>
-        <input type="text" id="licenseKey" placeholder="XXXX-XXXX-XXXX-XXXX">
-        <button id="verifyBtn" style="width: 100%;">Verify & Unlock</button>
-        <div id="authError" class="hidden"></div>
+    <div id="authGate" class="max-w-md mx-auto mt-20 bg-themepanel p-8 rounded-2xl border border-themeborder shadow-[0_0_50px_rgba(0,0,0,0.5)] text-center relative overflow-hidden flex flex-col items-center">
+        <div class="absolute top-0 left-0 w-full h-1 bg-themeaccent"></div>
+        <img src="assets/tc-logo.png" alt="TC Construction Logo" class="h-12 mb-4" onerror="this.style.display='none'">
+        <h2 class="text-2xl font-black uppercase tracking-widest text-themetext mb-2">Pave Ops Access</h2>
+        <p class="text-thememuted mb-6 text-sm">Enter your enterprise license key to unlock the environment.</p>
+        <input type="text" id="licenseKey" placeholder="XXXX-XXXX-XXXX-XXXX" class="w-full bg-themeinput border border-themeborder rounded-xl p-4 text-themeaccent text-center font-code tracking-widest mb-6 focus:ring-2 focus:ring-themeaccent outline-none shadow-inner transition-all">
+        <button id="verifyBtn" class="w-full bg-themeaccent hover:bg-themehover text-themebtntext font-black tracking-widest uppercase py-4 px-4 rounded-xl transition-all shadow-[0_0_20px_rgba(31,157,134,0.4)]">Verify & Unlock</button>
+        <p id="authError" class="text-rose-500 font-code text-xs mt-4 hidden uppercase tracking-wide">Invalid or Refunded License Key.</p>
     </div>
-  </div>
 
-  <div id="appInterface" class="hidden">
-      <header>
-        <img src="assets/tc-logo.png" alt="TC Construction" onerror="this.style.display='none'">
-        <h2><span>|</span> Pave Ops</h2>
-      </header>
-     
-      <div class="wrap">
-        <section class="card" id="scannerCard">
-          <div id="status" role="status">SYSTEM IDLE — AWAITING CAMERA INITIALIZATION</div>
-          <br>
-     
-          <div class="camera-wrap hidden" id="cameraWrap">
-            <div class="camera-square" id="cameraSquare">
-              <video id="video" playsinline autoplay muted class="hidden"></video>
-              <div class="finder"></div>
-            </div>
-          </div>
-     
-          <canvas id="preview" class="hidden"></canvas>
-     
-          <div class="controls">
-            <button id="openInApp" style="width: 100%;">Initialize Scanner</button>
-            <button id="capture" class="hidden" style="width: 100%;">Extract Note Data</button>
-            <button id="closeInApp" class="ghost hidden" style="width: 100%;">Abort Scan</button>
-          </div>
-         
-          <div class="controls" style="margin-top: 15px; padding-top: 15px; border-top: 1px solid var(--border);">
-            <button id="openNative" class="ghost" style="width: 100%;">Upload Image/File</button>
-          </div>
-     
-          <input id="cameraInput" type="file" accept="image/*" capture="environment" class="hidden">
-        </section>
-     
-        <section class="card" id="logsCard">
-          <h3 style="text-align: center; text-transform: uppercase; font-size: 1rem; color: var(--text-muted); letter-spacing: 1px;">Shift Ledger (<span id="count" style="color: var(--accent);">0</span>)</h3>
-     
-          <div class="field" style="margin-bottom: 20px; padding-bottom: 20px;">
-            <label style="font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 5px;">Default Shift BRD (t/m³)</label>
-            <input type="number" id="globalDensity" step="0.01" style="width: 80%; max-width: 300px; padding: 12px; text-align: center; background: var(--bg-input); color: var(--accent); border: 1px solid var(--border); border-radius: 6px; font-weight: bold; font-size: 1.1rem;">
-          </div>
-
-          <div id="logList"></div>
-     
-          <div style="margin-top:20px" class="controls">
-            <div class="field">
-              <label style="font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px;">Export Shift Data</label>
-              <input id="exportDate" type="date">
-              <button id="downloadDate" class="ghost" style="width: 80%;">Download Report (CSV)</button>
-            </div>
-            <div class="field" style="border: none;">
-              <button id="clearAll" class="danger">Clear Ledger</button>
-            </div>
-          </div>
-        </section>
-      </div>
-
-      <div class="footer-brand">Engineered by Titan Digital Labs</div>
-  </div>
-
-  <div id="mathModal" class="hidden">
-      <div class="modal-content">
-          <h3>COTO 2020 Engine</h3>
-          <div class="input-group">
-              <label>Extracted Mass (Tonnes)</label>
-              <div class="readonly-val" id="modalMass">0.00</div>
-              <input type="hidden" id="rawMassVal"><input type="hidden" id="rawTicketVal"><input type="hidden" id="rawMixVal"><input type="hidden" id="rawCompanyVal"><input type="hidden" id="rawCustomerVal"><input type="hidden" id="rawRegVal">
-          </div>
-          <div class="input-group"><label>Paved Length (m)</label><input type="number" id="inputLength" placeholder="e.g. 50" step="0.1"></div>
-          <div class="input-group"><label>Paved Width (m)</label><input type="number" id="inputWidth" placeholder="e.g. 3.5" step="0.1"></div>
-          
-          <div class="liability-gate">
-              <label><input type="checkbox" id="cutbackCheck">I confirm that all Cutbacks are included.</label>
-          </div>
-          
-          <div class="input-group"><label>Target BRD</label><input type="number" id="inputDensity" step="0.01"></div>
-          
-          <div class="controls" style="margin-top: 25px;">
-              <button id="calcAndSaveBtn" style="width: 100%;">Calculate & Log</button>
-              <button id="cancelModalBtn" class="ghost" style="width: 100%;">Discard</button>
-          </div>
-      </div>
-  </div>
-
-  <script src="libs/jsqr.min.js"></script>
-  <script src="libs/zxing.min.js"></script>
- 
-  <script>
-  (function(){
-    // --- 2. GUMROAD AUTHENTICATION & PERSISTENCE ---
-    const PRODUCT_PERMALINK = "tcpaveops"; // INJECTED GUMROAD ID
-    
-    const authGate = document.getElementById('authGate');
-    const appInterface = document.getElementById('appInterface');
-    const verifyBtn = document.getElementById('verifyBtn');
-    const licenseInput = document.getElementById('licenseKey');
-    const authError = document.getElementById('authError');
-
-    // Persistent Login Check
-    if(localStorage.getItem('tc_paveops_auth') === 'verified') {
-        authGate.style.display = 'none';
-        appInterface.classList.remove('hidden');
-        bootAppEngine();
-    }
-
-    verifyBtn.addEventListener('click', async () => {
-        const key = licenseInput.value.trim();
-        if(!key) return;
+    <div id="appInterface" class="max-w-3xl mx-auto hidden pb-10">
         
-        verifyBtn.innerText = "Verifying...";
-        verifyBtn.disabled = true;
-        authError.classList.add('hidden');
+        <div class="mb-8 flex flex-col justify-center items-center border-b border-themeborder pb-6 gap-2 text-center relative">
+            <img src="assets/tc-logo.png" alt="TC Construction" class="h-10 mb-2" onerror="this.style.display='none'">
+            <h1 class="text-2xl md:text-3xl font-black uppercase tracking-tighter text-themetext drop-shadow-md">
+                Pave<span class="text-themeaccent">Ops</span> Engine
+            </h1>
+        </div>
 
-        try {
-            const res = await fetch("https://api.gumroad.com/v2/licenses/verify", {
-                method: "POST",
-                headers: { "Content-Type": "application/x-www-form-urlencoded" },
-                body: new URLSearchParams({ product_permalink: PRODUCT_PERMALINK, license_key: key })
-            });
-            const data = await res.json();
+        <div class="bg-themepanel p-5 md:p-8 rounded-2xl border border-themeborder mb-6 shadow-xl relative overflow-hidden">
+            <div class="absolute top-0 left-0 w-1 h-full bg-themeborder"></div>
+            <h2 class="text-sm font-black uppercase tracking-widest mb-4 text-themetext flex items-center gap-2">
+                <span class="w-2 h-2 rounded-full bg-thememuted animate-pulse" id="scannerIndicator"></span> Ticket Ingestion
+            </h2>
+            
+            <div id="status" class="text-xs font-code uppercase text-themeaccent mb-6 text-center tracking-widest">SYSTEM IDLE — AWAITING CAMERA</div>
+            
+            <div class="camera-wrap hidden mb-6 max-w-sm mx-auto" id="cameraWrap">
+                <div class="camera-square" id="cameraSquare">
+                    <video id="video" playsinline autoplay muted class="hidden"></video>
+                    <div class="finder"><span></span></div>
+                </div>
+            </div>
+            
+            <canvas id="preview" class="hidden"></canvas>
+            
+            <div class="flex flex-col gap-3">
+                <button id="openInApp" class="w-full bg-themeaccent hover:bg-themehover text-themebtntext font-black uppercase tracking-widest py-4 rounded-xl transition-all shadow-[0_0_15px_rgba(31,157,134,0.3)]">Initialize Scanner</button>
+                <button id="capture" class="hidden w-full bg-themeaccent hover:bg-themehover text-themebtntext font-black uppercase tracking-widest py-4 rounded-xl transition-all">Extract Note Data</button>
+                <button id="closeInApp" class="hidden w-full bg-transparent border border-themeborder text-themetext hover:bg-themeinput font-bold uppercase tracking-widest py-3 rounded-xl transition-all">Abort Scan</button>
+            </div>
+            
+            <div class="mt-6 pt-6 border-t border-themeborder">
+                <button id="openNative" class="w-full bg-themeinput border border-themeborder text-thememuted hover:text-themetext hover:border-themeaccent font-bold uppercase tracking-widest py-3 rounded-xl transition-all text-xs">Upload Ticket Image</button>
+            </div>
+            <input id="cameraInput" type="file" accept="image/*" capture="environment" class="hidden">
+        </div>
 
-            if (data.success && !data.purchase.refunded) {
-                // PIRACY TRAPDOOR: Max 5 logins
-                if (data.uses > 5) {
-                    authError.innerText = "Access Denied. Key usage limit exceeded. Contact Support.";
+        <div class="bg-themepanel p-5 md:p-8 rounded-2xl border border-themeborder shadow-xl relative overflow-hidden">
+            <div class="absolute top-0 left-0 w-1 h-full bg-themeaccent opacity-50"></div>
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-sm font-black uppercase tracking-widest text-themetext flex items-center gap-2">
+                    <span class="w-2 h-2 rounded-full bg-themeaccent opacity-50"></span> Shift Ledger
+                </h2>
+                <span class="bg-themeinput border border-themeborder px-3 py-1 rounded-full text-xs font-code text-themeaccent" id="count">0</span>
+            </div>
+
+            <div class="mb-6 p-4 bg-themeinput rounded-xl border border-themeborder">
+                <label class="block text-[10px] font-code uppercase tracking-widest text-thememuted mb-2">Default Shift Target BRD (t/m³)</label>
+                <input type="number" id="globalDensity" step="0.01" class="w-full bg-themepanel border border-themeborder rounded-xl p-3 text-themeaccent font-code text-lg focus:ring-2 focus:ring-themeaccent outline-none transition-all text-center font-bold">
+            </div>
+
+            <div id="logList" class="space-y-4 max-h-96 overflow-y-auto pr-2 mb-6"></div>
+
+            <div class="mt-6 pt-6 border-t border-themeborder grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="flex flex-col gap-2">
+                    <label class="text-[10px] font-code uppercase tracking-widest text-thememuted">Export Date</label>
+                    <input id="exportDate" type="date" class="w-full bg-themeinput border border-themeborder rounded-xl p-3 text-themetext font-code text-sm focus:ring-2 focus:ring-themeaccent outline-none color-scheme-dark">
+                    <button id="downloadDate" class="bg-transparent border border-themeborder text-themetext hover:bg-themeinput font-bold uppercase tracking-widest py-3 rounded-xl transition-all text-xs">Download CSV</button>
+                </div>
+                <div class="flex flex-col justify-end">
+                    <button id="clearAll" class="bg-rose-950/30 border border-rose-900 text-rose-500 hover:bg-rose-900/50 font-bold uppercase tracking-widest py-3 rounded-xl transition-all text-xs mt-2">Clear Ledger</button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="text-center mt-10 text-[10px] font-code text-thememuted uppercase tracking-widest">
+            Engineered by Titan Digital Labs
+        </div>
+    </div>
+
+    <div id="mathModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-themepanel border border-themeborder p-6 md:p-8 rounded-2xl max-w-sm w-full shadow-[0_0_50px_rgba(0,0,0,0.5)] max-h-[90vh] flex flex-col relative overflow-hidden">
+            <div class="absolute top-0 left-0 w-full h-1 bg-themeaccent"></div>
+            <h3 class="text-xl font-black uppercase tracking-widest text-themetext mb-6">COTO 2020 Engine</h3>
+            
+            <div class="flex flex-col gap-4 overflow-y-auto pr-2">
+                <div class="bg-themeinput p-4 rounded-xl border border-themeborder">
+                    <label class="block text-[10px] font-code uppercase tracking-widest text-thememuted mb-1">Extracted Mass (Tonnes)</label>
+                    <div class="text-2xl font-black text-themetext font-code" id="modalMass">0.00</div>
+                    <input type="hidden" id="rawMassVal"><input type="hidden" id="rawTicketVal"><input type="hidden" id="rawMixVal"><input type="hidden" id="rawCompanyVal"><input type="hidden" id="rawCustomerVal"><input type="hidden" id="rawRegVal">
+                </div>
+
+                <div>
+                    <label class="block text-[10px] font-code uppercase tracking-widest text-thememuted mb-2">Paved Length (m)</label>
+                    <input type="number" id="inputLength" placeholder="e.g. 50" step="0.1" class="w-full bg-themeinput border border-themeborder rounded-xl p-3 text-themetext font-code text-base focus:ring-2 focus:ring-themeaccent outline-none">
+                </div>
+
+                <div>
+                    <label class="block text-[10px] font-code uppercase tracking-widest text-thememuted mb-2">Paved Width (m)</label>
+                    <input type="number" id="inputWidth" placeholder="e.g. 3.5" step="0.1" class="w-full bg-themeinput border border-themeborder rounded-xl p-3 text-themetext font-code text-base focus:ring-2 focus:ring-themeaccent outline-none">
+                </div>
+                
+                <div class="bg-amber-950/20 border border-amber-900/50 p-4 rounded-xl mt-2">
+                    <label class="flex items-start gap-3 cursor-pointer">
+                        <input type="checkbox" id="cutbackCheck" class="w-5 h-5 accent-amber-500 mt-0.5">
+                        <span class="text-xs text-amber-500 font-bold leading-tight">I confirm that all Cutbacks are included in these dimensions.</span>
+                    </label>
+                </div>
+                
+                <div>
+                    <label class="block text-[10px] font-code uppercase tracking-widest text-thememuted mb-2">Target BRD (t/m³)</label>
+                    <input type="number" id="inputDensity" step="0.01" class="w-full bg-themeinput border border-themeborder rounded-xl p-3 text-themeaccent font-code text-base focus:ring-2 focus:ring-themeaccent outline-none font-bold">
+                </div>
+            </div>
+            
+            <div class="flex gap-3 pt-6 mt-4 border-t border-themeborder">
+                <button id="cancelModalBtn" class="flex-1 bg-transparent border border-themeborder text-themetext py-3 rounded-xl text-xs font-bold uppercase tracking-widest hover:bg-themeinput transition-colors">Discard</button>
+                <button id="calcAndSaveBtn" class="flex-1 bg-themeaccent text-themebtntext py-3 rounded-xl text-xs font-bold uppercase tracking-widest shadow-[0_0_15px_rgba(31,157,134,0.4)] hover:shadow-[0_0_25px_rgba(31,157,134,0.6)] transition-all">Log Data</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="libs/jsqr.min.js"></script>
+    <script src="libs/zxing.min.js"></script>
+ 
+    <script>
+    (function(){
+        // --- 1. GUMROAD AUTHENTICATION & PERSISTENCE ---
+        const PRODUCT_PERMALINK = "VQILqBURHyT069iSRdOirg=="; // INJECTED ID
+        
+        const authGate = document.getElementById('authGate');
+        const appInterface = document.getElementById('appInterface');
+        const verifyBtn = document.getElementById('verifyBtn');
+        const licenseInput = document.getElementById('licenseKey');
+        const authError = document.getElementById('authError');
+
+        if(localStorage.getItem('tc_paveops_auth') === 'verified') {
+            authGate.classList.add('hidden');
+            appInterface.classList.remove('hidden');
+            bootAppEngine();
+        }
+
+        verifyBtn.addEventListener('click', async () => {
+            const key = licenseInput.value.trim();
+            if(!key) return;
+            
+            verifyBtn.innerText = "VERIFYING...";
+            verifyBtn.disabled = true;
+            authError.classList.add('hidden');
+
+            try {
+                const res = await fetch("https://api.gumroad.com/v2/licenses/verify", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                    body: new URLSearchParams({ product_permalink: PRODUCT_PERMALINK, license_key: key })
+                });
+                const data = await res.json();
+
+                if (data.success && !data.purchase.refunded) {
+                    if (data.uses > 5) {
+                        authError.innerText = "Access Denied. Key usage limit exceeded.";
+                        authError.classList.remove('hidden');
+                        verifyBtn.innerText = "Verify & Unlock";
+                        verifyBtn.disabled = false;
+                        return;
+                    }
+                    localStorage.setItem('tc_paveops_auth', 'verified');
+                    authGate.classList.add('hidden');
+                    appInterface.classList.remove('hidden');
+                    bootAppEngine();
+                } else {
+                    authError.innerText = "Invalid or Refunded License Key.";
                     authError.classList.remove('hidden');
                     verifyBtn.innerText = "Verify & Unlock";
                     verifyBtn.disabled = false;
-                    return;
                 }
-
-                localStorage.setItem('tc_paveops_auth', 'verified');
-                authGate.style.display = 'none';
-                appInterface.classList.remove('hidden');
-                bootAppEngine();
-            } else {
-                authError.innerText = "Invalid or Refunded License Key.";
+            } catch(e) {
+                authError.innerText = "Connection error. Are you offline?";
                 authError.classList.remove('hidden');
                 verifyBtn.innerText = "Verify & Unlock";
                 verifyBtn.disabled = false;
             }
-        } catch(e) {
-            authError.innerText = "Connection error. Are you offline?";
-            authError.classList.remove('hidden');
-            verifyBtn.innerText = "Verify & Unlock";
-            verifyBtn.disabled = false;
-        }
-    });
-
-    // --- 3. THE CORE APPLICATION ENGINE ---
-    function bootAppEngine() {
-        function uid() { return Date.now().toString(36) + Math.random().toString(36).substring(2); }
-        const DB_NAME = 'tc-paveops-db';
-        const DB_STORE = 'logs';
-       
-        function openDb(){
-          return new Promise((res, rej) => {
-            const r = indexedDB.open(DB_NAME, 2);
-            r.onupgradeneeded = e => { if(!e.target.result.objectStoreNames.contains(DB_STORE)){ e.target.result.createObjectStore(DB_STORE, { keyPath: 'id' }); } };
-            r.onsuccess = e => res(e.target.result); r.onerror = e => rej(e.target.error);
-          });
-        }
-       
-        async function idbPut(entry){ const db = await openDb(); return new Promise((res, rej) => { const tx = db.transaction(DB_STORE, 'readwrite'); tx.objectStore(DB_STORE).put(entry); tx.oncomplete = ()=> res(); tx.onerror = e => rej(e.target.error); }); }
-        async function idbGetAll(){ const db = await openDb(); return new Promise((res, rej) => { const tx = db.transaction(DB_STORE, 'readonly'); const req = tx.objectStore(DB_STORE).getAll(); req.onsuccess = ()=> res(req.result || []); req.onerror = e => rej(e.target.error); }); }
-        async function idbDelete(id){ const db = await openDb(); return new Promise((res, rej) => { const tx = db.transaction(DB_STORE, 'readwrite'); tx.objectStore(DB_STORE).delete(id); tx.oncomplete = ()=> res(); tx.onerror = e => rej(e.target.error); }); }
-     
-        const video = document.getElementById('video'); const preview = document.getElementById('preview'); const status = document.getElementById('status');
-        const openInApp = document.getElementById('openInApp'); const closeInApp = document.getElementById('closeInApp'); const captureBtn = document.getElementById('capture');
-        const openNative = document.getElementById('openNative'); const cameraInput = document.getElementById('cameraInput');
-        const logList = document.getElementById('logList'); const countSpan = document.getElementById('count');
-        const downloadDateBtn = document.getElementById('downloadDate'); const exportDateInput = document.getElementById('exportDate');
-        const cameraWrap = document.getElementById('cameraWrap'); const clearAllBtn = document.getElementById('clearAll');
-        
-        const globalDensity = document.getElementById('globalDensity');
-        globalDensity.value = localStorage.getItem('tcPaveOpsBRD') || '2.40';
-        globalDensity.addEventListener('input', (e) => { localStorage.setItem('tcPaveOpsBRD', e.target.value); });
-
-        const mathModal = document.getElementById('mathModal'); const modalMass = document.getElementById('modalMass');
-        const rawMassVal = document.getElementById('rawMassVal'); const rawTicketVal = document.getElementById('rawTicketVal'); const rawMixVal = document.getElementById('rawMixVal');
-        const rawCompanyVal = document.getElementById('rawCompanyVal'); const rawCustomerVal = document.getElementById('rawCustomerVal'); const rawRegVal = document.getElementById('rawRegVal');
-        const inputLength = document.getElementById('inputLength'); const inputWidth = document.getElementById('inputWidth');
-        const cutbackCheck = document.getElementById('cutbackCheck'); const inputDensity = document.getElementById('inputDensity');
-        const calcAndSaveBtn = document.getElementById('calcAndSaveBtn'); const cancelModalBtn = document.getElementById('cancelModalBtn');
-     
-        if ('serviceWorker' in navigator) { navigator.serviceWorker.register('sw.js').catch(err=> console.warn('SW failed', err)); }
-        function setStatus(txt){ status.textContent = txt; }
-     
-        async function renderLogs(){
-          const logs = await idbGetAll(); logList.innerHTML = ''; logs.sort((a,b)=> (b.t > a.t ? 1 : -1));
-          logs.forEach(l=>{
-            const card = document.createElement('div'); card.className = 'log-card';
-            const dateObj = new Date(l.t); const scanTime = dateObj.toLocaleDateString() + ' ' + dateObj.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-            card.innerHTML = `
-              <div class="header-row"><div class="timestamp">Scanned: ${scanTime}</div><button class="danger del-btn" data-id="${l.id}">DEL</button></div>
-              <div style="margin-bottom: 8px;"><strong>Company:</strong> <span>${l.company}</span> <br><strong>Client:</strong> <span>${l.customer}</span> <br><strong>Product:</strong> <span>${l.material}</span> <br><strong>Registration:</strong> <span>${l.registration}</span> <br><strong>Ticket:</strong> <span>${l.truck}</span></div>
-              <div style="background: rgba(31, 157, 134, 0.05); padding: 10px; border-radius: 6px; border: 1px solid rgba(31, 157, 134, 0.2);">
-                  <strong>Net Mass:</strong> <span>${parseFloat(l.tonnage).toFixed(2)}t</span> <br><strong>Spread Rate:</strong> <span>${parseFloat(l.spreadRate).toFixed(2)} m²/t</span> <br><strong style="color:var(--accent);">Thickness:</strong> <span class="highlight">${parseFloat(l.thickness).toFixed(1)} mm</span>
-              </div>`;
-            card.querySelector('.del-btn').onclick = async ()=> { await idbDelete(l.id); await renderLogs(); };
-            logList.appendChild(card);
-          });
-          countSpan.textContent = logs.length;
-        }
-     
-        function parseDecoded(text){
-          const s = (text||'').trim(); let parsed = { time: new Date().toISOString(), company: 'Unknown', customer: 'Unknown', material: 'Unknown Mix', truck: 'Unknown', registration: 'Unknown', tonnage: 0, raw: s };
-          const extract = (regex) => { const match = s.match(regex); return match ? match[1].trim() : null; };
-          const company = extract(/Company:\s*([^\n\r]+)/i); const customer = extract(/Customer:\s*([^\n\r]+)/i) || extract(/Client:\s*([^\n\r]+)/i);
-          const deliveryNote = extract(/DeliveryNote:\s*([^\n\r]+)/i) || extract(/Ticket:\s*([^\n\r]+)/i); const product = extract(/Product:\s*([^\n\r]+)/i) || extract(/Material:\s*([^\n\r]+)/i);
-          const netMass = extract(/Net(?:\s*Mass\s*\(t\))?:\s*([\d.]+)/i) || extract(/Net:\s*([\d.]+)/i); const reg = extract(/Registration:\s*([^\n\r]+)/i);
-          const despatched = extract(/Despatched:\s*([^\n\r]+)/i) || extract(/DateTime:\s*([^\n\r]+)/i);
-          if (deliveryNote || netMass || product) { parsed.company = company || 'Unknown'; parsed.customer = customer || 'TC Construction'; parsed.truck = deliveryNote || 'N/A'; parsed.material = product || 'Asphalt'; parsed.registration = reg || 'N/A'; parsed.tonnage = parseFloat(netMass) || 0; if (despatched) parsed.time = despatched; return parsed; }
-          const parts = s.split(/[\n\r|;,]+/).map(p=>p.trim()).filter(Boolean);
-          if(parts.length >= 4) { parsed.time = parts[0]; parsed.material = parts[1]; parsed.truck = parts[2]; parsed.tonnage = parseFloat(parts[3] || 0); } 
-          else if(parts.length === 3) { parsed.material = parts[0]; parsed.truck = parts[1]; parsed.tonnage = parseFloat(parts[2] || 0); }
-          return parsed;
-        }
-     
-        async function handleDecodedText(decodedText){
-          const parsed = parseDecoded(decodedText);
-          if(video.srcObject) closeInApp.click();
-          modalMass.innerText = parsed.tonnage > 0 ? parsed.tonnage.toFixed(2) : "0.00";
-          rawMassVal.value = parsed.tonnage; rawTicketVal.value = parsed.truck; rawMixVal.value = parsed.material; rawCompanyVal.value = parsed.company; rawCustomerVal.value = parsed.customer; rawRegVal.value = parsed.registration;
-          inputLength.value = ''; inputWidth.value = ''; cutbackCheck.checked = false; inputDensity.value = globalDensity.value;
-          mathModal.classList.remove('hidden'); setStatus('Engine ready. Input dimensions.');
-        }
-
-        cancelModalBtn.addEventListener('click', () => { mathModal.classList.add('hidden'); setStatus('Scan Aborted.'); });
-
-        calcAndSaveBtn.addEventListener('click', async () => {
-            const massTonnes = parseFloat(rawMassVal.value) || 0; const length = parseFloat(inputLength.value) || 0; const width = parseFloat(inputWidth.value) || 0; const brd = parseFloat(inputDensity.value) || 2.40;
-            if(!cutbackCheck.checked) { alert("SECURITY HALT: You must confirm that cutbacks have been included."); return; }
-            if(massTonnes <= 0 || length <= 0 || width <= 0 || brd <= 0) { alert("Values must be greater than zero."); return; }
-            const area = length * width; const spreadRate = area / massTonnes; const thickness = 1000 / (brd * spreadRate); 
-            const entry = { id: uid(), t: new Date().toISOString(), company: rawCompanyVal.value, customer: rawCustomerVal.value, registration: rawRegVal.value, material: rawMixVal.value, truck: rawTicketVal.value, tonnage: massTonnes, length: length, width: width, area: area, spreadRate: spreadRate, density: brd, thickness: thickness };
-            await idbPut(entry); await renderLogs(); mathModal.classList.add('hidden'); setStatus(`Logged: Ticket ${entry.truck} | Est: ${thickness.toFixed(1)}mm`);
         });
-     
-        async function decodeCanvasOrBlob(source){
-          let canvas; if(source instanceof HTMLCanvasElement) canvas = source; else { const img = new Image(); canvas = await new Promise((res, rej)=>{ img.onload = ()=> { const c = document.createElement('canvas'); c.width = img.width; c.height = img.height; c.getContext('2d').drawImage(img,0,0); URL.revokeObjectURL(img.src); res(c); }; img.onerror = rej; img.src = URL.createObjectURL(source); }); }
-          try { if(window.jsQR){ const ctx = canvas.getContext('2d'); const imgData = ctx.getImageData(0,0,canvas.width,canvas.height); const res = jsQR(imgData.data, imgData.width, imgData.height); if(res && res.data) return res.data; } } catch(e){}
-          try { const ReaderClass = window.ZXing?.BrowserQRCodeReader || window.BrowserMultiFormatReader; if(ReaderClass){ const reader = new ReaderClass(); const blob = await new Promise(r=> canvas.toBlob(r,'image/png')); const url = URL.createObjectURL(blob); const result = await reader.decodeFromImageUrl(url); URL.revokeObjectURL(url); if(result && result.text) return result.text; } } catch(e){} return null;
-        }
-     
-        function sleep(ms){ return new Promise(r=>setTimeout(r,ms)); }
-        async function waitForVideoReady(v){ const start = Date.now(); while ((v.readyState < 2) && (Date.now() - start) < 3000) await sleep(100); }
-     
-        openInApp.addEventListener('click', async ()=>{
-          try { const constraints = { video: { facingMode: { ideal:'environment' } }, audio:false }; video.srcObject = await navigator.mediaDevices.getUserMedia(constraints); await waitForVideoReady(video); cameraWrap.classList.remove('hidden'); video.classList.remove('hidden'); closeInApp.classList.remove('hidden'); captureBtn.classList.remove('hidden'); openInApp.classList.add('hidden'); setStatus('Align QR and press Scan Note'); } catch(e){ setStatus('Camera unavailable. Use Device Camera.'); }
-        });
-        closeInApp.addEventListener('click', ()=>{ if(video.srcObject) video.srcObject.getTracks().forEach(t=>t.stop()); video.srcObject = null; cameraWrap.classList.add('hidden'); video.classList.add('hidden'); closeInApp.classList.add('hidden'); captureBtn.classList.add('hidden'); openInApp.classList.remove('hidden'); setStatus('System Idle'); });
-        captureBtn.addEventListener('click', async ()=>{ if(!video.srcObject) return; const side = Math.min(video.videoWidth, video.videoHeight); const sx = (video.videoWidth - side) / 2; const sy = (video.videoHeight - side) / 2; preview.width = side; preview.height = side; const ctx = preview.getContext('2d'); ctx.drawImage(video, sx, sy, side, side, 0, 0, side, side); setStatus('Decrypting Note...'); const blob = await new Promise(r=> preview.toBlob(r,'image/jpeg', 0.9)); const text = await decodeCanvasOrBlob(blob); if(text) await handleDecodedText(text); else setStatus('Scan Failed. Please retry.'); });
-        openNative.addEventListener('click', ()=> cameraInput.click());
-        cameraInput.addEventListener('change', async ev=>{ const f = ev.target.files && ev.target.files[0]; if(!f) return; setStatus('Decrypting Note...'); const text = await decodeCanvasOrBlob(f); if(text) await handleDecodedText(text); else setStatus('Scan Failed. Please retry.'); cameraInput.value = ''; });
-     
-        function logsToCSV(rows){
-          const header = ['Scan Date','Scan Time','Company','Client','Registration','Mix Type','Ticket','Mass (t)','Length (m)','Width (m)','Area (m2)','Spread Rate (m2/t)','Target BRD (t/m3)','Est. Thickness (mm)']; const lines = [header.join(',')];
-          rows.forEach(r=>{ const dateObj = new Date(r.t); const dateStr = dateObj.toLocaleDateString(); const timeStr = dateObj.toLocaleTimeString(); lines.push([ dateStr, timeStr, r.company, r.customer, r.registration, r.material, r.truck, r.tonnage.toFixed(2), r.length.toFixed(2), r.width.toFixed(2), r.area.toFixed(2), r.spreadRate.toFixed(2), r.density.toFixed(2), r.thickness.toFixed(2) ].map(v => '"' + String(v).replace(/"/g,'""') + '"').join(',')); }); return lines.join('\n');
-        }
-     
-        function downloadBlob(filename, blob){ const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = filename; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url); }
-     
-        downloadDateBtn.addEventListener('click', async ()=>{ const date = exportDateInput.value; if(!date) return setStatus('Engine Error: Select Date First'); const logs = (await idbGetAll()).filter(l => l.t.slice(0,10) === date); if(!logs.length) return setStatus('No data for ' + date); downloadBlob(`TC_PaveOps_Report_${date}.csv`, new Blob([logsToCSV(logs)], {type:'text/csv'})); setStatus('Report Exported'); });
-        clearAllBtn.addEventListener('click', async ()=>{ if(confirm('WARNING: Are you sure you want to permanently format the Ledger?')){ const db = await openDb(); const tx = db.transaction(DB_STORE, 'readwrite'); tx.objectStore(DB_STORE).clear(); await renderLogs(); setStatus('Ledger formatted'); } });
-     
-        renderLogs(); document.getElementById('exportDate').valueAsDate = new Date();
-    } // End bootAppEngine
-  })();
-  </script>
+
+        // --- 2. CORE APPLICATION ENGINE ---
+        function bootAppEngine() {
+            function uid() { return Date.now().toString(36) + Math.random().toString(36).substring(2); }
+            const DB_NAME = 'tc-paveops-db';
+            const DB_STORE = 'logs';
+           
+            function openDb(){
+              return new Promise((res, rej) => {
+                const r = indexedDB.open(DB_NAME, 2);
+                r.onupgradeneeded = e => { if(!e.target.result.objectStoreNames.contains(DB_STORE)){ e.target.result.createObjectStore(DB_STORE, { keyPath: 'id' }); } };
+                r.onsuccess = e => res(e.target.result); r.onerror = e => rej(e.target.error);
+              });
+            }
+           
+            async function idbPut(entry){ const db = await openDb(); return new Promise((res, rej) => { const tx = db.transaction(DB_STORE, 'readwrite'); tx.objectStore(DB_STORE).put(entry); tx.oncomplete = ()=> res(); tx.onerror = e => rej(e.target.error); }); }
+            async function idbGetAll(){ const db = await openDb(); return new Promise((res, rej) => { const tx = db.transaction(DB_STORE, 'readonly'); const req = tx.objectStore(DB_STORE).getAll(); req.onsuccess = ()=> res(req.result || []); req.onerror = e => rej(e.target.error); }); }
+            async function idbDelete(id){ const db = await openDb(); return new Promise((res, rej) => { const tx = db.transaction(DB_STORE, 'readwrite'); tx.objectStore(DB_STORE).delete(id); tx.oncomplete = ()=> res(); tx.onerror = e => rej(e.target.error); }); }
+         
+            const video = document.getElementById('video'); const preview = document.getElementById('preview'); const status = document.getElementById('status');
+            const openInApp = document.getElementById('openInApp'); const closeInApp = document.getElementById('closeInApp'); const captureBtn = document.getElementById('capture');
+            const openNative = document.getElementById('openNative'); const cameraInput = document.getElementById('cameraInput');
+            const logList = document.getElementById('logList'); const countSpan = document.getElementById('count');
+            const downloadDateBtn = document.getElementById('downloadDate'); const exportDateInput = document.getElementById('exportDate');
+            const cameraWrap = document.getElementById('cameraWrap'); const clearAllBtn = document.getElementById('clearAll');
+            const scannerIndicator = document.getElementById('scannerIndicator');
+            
+            const globalDensity = document.getElementById('globalDensity');
+            globalDensity.value = localStorage.getItem('tcPaveOpsBRD') || '2.40';
+            globalDensity.addEventListener('input', (e) => { localStorage.setItem('tcPaveOpsBRD', e.target.value); });
+
+            const mathModal = document.getElementById('mathModal'); const modalMass = document.getElementById('modalMass');
+            const rawMassVal = document.getElementById('rawMassVal'); const rawTicketVal = document.getElementById('rawTicketVal'); const rawMixVal = document.getElementById('rawMixVal');
+            const rawCompanyVal = document.getElementById('rawCompanyVal'); const rawCustomerVal = document.getElementById('rawCustomerVal'); const rawRegVal = document.getElementById('rawRegVal');
+            const inputLength = document.getElementById('inputLength'); const inputWidth = document.getElementById('inputWidth');
+            const cutbackCheck = document.getElementById('cutbackCheck'); const inputDensity = document.getElementById('inputDensity');
+            const calcAndSaveBtn = document.getElementById('calcAndSaveBtn'); const cancelModalBtn = document.getElementById('cancelModalBtn');
+         
+            if ('serviceWorker' in navigator) { navigator.serviceWorker.register('sw.js').catch(err=> console.warn('SW failed', err)); }
+            function setStatus(txt, active = false){ 
+                status.textContent = txt; 
+                if(active) {
+                    status.classList.add('text-themeaccent'); status.classList.remove('text-thememuted');
+                    scannerIndicator.classList.add('bg-themeaccent'); scannerIndicator.classList.remove('bg-thememuted');
+                } else {
+                    status.classList.remove('text-themeaccent'); status.classList.add('text-thememuted');
+                    scannerIndicator.classList.remove('bg-themeaccent'); scannerIndicator.classList.add('bg-thememuted');
+                }
+            }
+         
+            async function renderLogs(){
+              const logs = await idbGetAll(); logList.innerHTML = ''; logs.sort((a,b)=> (b.t > a.t ? 1 : -1));
+              logs.forEach(l=>{
+                const card = document.createElement('div'); 
+                card.className = 'bg-themeinput p-4 rounded-xl border border-themeborder hover:border-themeaccent transition-colors text-sm';
+                const dateObj = new Date(l.t); const scanTime = dateObj.toLocaleDateString() + ' ' + dateObj.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                card.innerHTML = `
+                  <div class="flex justify-between items-center border-b border-themeborder pb-2 mb-3">
+                      <div class="font-code text-[10px] text-themeaccent tracking-widest uppercase">Scanned: ${scanTime}</div>
+                      <button class="danger del-btn font-bold text-[10px] uppercase px-2 py-1 bg-rose-950/30 text-rose-500 rounded border border-rose-900" data-id="${l.id}">DEL</button>
+                  </div>
+                  <div class="grid grid-cols-2 gap-2 mb-3 font-code text-xs">
+                      <div><span class="text-thememuted">Co:</span> ${l.company}</div>
+                      <div><span class="text-thememuted">Tkt:</span> ${l.truck}</div>
+                      <div class="col-span-2"><span class="text-thememuted">Mix:</span> ${l.material}</div>
+                  </div>
+                  <div class="bg-themebg p-3 rounded-lg border border-themeborder flex justify-between items-center font-code text-xs">
+                      <div><span class="text-thememuted">Mass:</span> <br><span class="font-bold text-themetext">${parseFloat(l.tonnage).toFixed(2)}t</span></div>
+                      <div><span class="text-thememuted">Rate:</span> <br><span class="font-bold text-themetext">${parseFloat(l.spreadRate).toFixed(2)} m²</span></div>
+                      <div class="text-right"><span class="text-themeaccent opacity-70">Thick:</span> <br><span class="font-black text-themeaccent text-base">${parseFloat(l.thickness).toFixed(1)}mm</span></div>
+                  </div>`;
+                card.querySelector('.del-btn').onclick = async ()=> { await idbDelete(l.id); await renderLogs(); };
+                logList.appendChild(card);
+              });
+              countSpan.textContent = logs.length;
+            }
+         
+            function parseDecoded(text){
+              const s = (text||'').trim(); let parsed = { time: new Date().toISOString(), company: 'Unknown', customer: 'Unknown', material: 'Unknown Mix', truck: 'Unknown', registration: 'Unknown', tonnage: 0, raw: s };
+              const extract = (regex) => { const match = s.match(regex); return match ? match[1].trim() : null; };
+              const company = extract(/Company:\s*([^\n\r]+)/i); const customer = extract(/Customer:\s*([^\n\r]+)/i) || extract(/Client:\s*([^\n\r]+)/i);
+              const deliveryNote = extract(/DeliveryNote:\s*([^\n\r]+)/i) || extract(/Ticket:\s*([^\n\r]+)/i); const product = extract(/Product:\s*([^\n\r]+)/i) || extract(/Material:\s*([^\n\r]+)/i);
+              const netMass = extract(/Net(?:\s*Mass\s*\(t\))?:\s*([\d.]+)/i) || extract(/Net:\s*([\d.]+)/i); const reg = extract(/Registration:\s*([^\n\r]+)/i);
+              const despatched = extract(/Despatched:\s*([^\n\r]+)/i) || extract(/DateTime:\s*([^\n\r]+)/i);
+              if (deliveryNote || netMass || product) { parsed.company = company || 'Unknown'; parsed.customer = customer || 'TC Construction'; parsed.truck = deliveryNote || 'N/A'; parsed.material = product || 'Asphalt'; parsed.registration = reg || 'N/A'; parsed.tonnage = parseFloat(netMass) || 0; if (despatched) parsed.time = despatched; return parsed; }
+              const parts = s.split(/[\n\r|;,]+/).map(p=>p.trim()).filter(Boolean);
+              if(parts.length >= 4) { parsed.time = parts[0]; parsed.material = parts[1]; parsed.truck = parts[2]; parsed.tonnage = parseFloat(parts[3] || 0); } 
+              else if(parts.length === 3) { parsed.material = parts[0]; parsed.truck = parts[1]; parsed.tonnage = parseFloat(parts[2] || 0); }
+              return parsed;
+            }
+         
+            async function handleDecodedText(decodedText){
+              const parsed = parseDecoded(decodedText);
+              if(video.srcObject) closeInApp.click();
+              modalMass.innerText = parsed.tonnage > 0 ? parsed.tonnage.toFixed(2) : "0.00";
+              rawMassVal.value = parsed.tonnage; rawTicketVal.value = parsed.truck; rawMixVal.value = parsed.material; rawCompanyVal.value = parsed.company; rawCustomerVal.value = parsed.customer; rawRegVal.value = parsed.registration;
+              inputLength.value = ''; inputWidth.value = ''; cutbackCheck.checked = false; inputDensity.value = globalDensity.value;
+              mathModal.classList.remove('hidden'); setStatus('SYSTEM READY. INPUT DIMENSIONS.', true);
+            }
+
+            cancelModalBtn.addEventListener('click', () => { mathModal.classList.add('hidden'); setStatus('SCAN ABORTED', false); });
+
+            calcAndSaveBtn.addEventListener('click', async () => {
+                const massTonnes = parseFloat(rawMassVal.value) || 0; const length = parseFloat(inputLength.value) || 0; const width = parseFloat(inputWidth.value) || 0; const brd = parseFloat(inputDensity.value) || 2.40;
+                if(!cutbackCheck.checked) { alert("SECURITY HALT: You must confirm that cutbacks have been included."); return; }
+                if(massTonnes <= 0 || length <= 0 || width <= 0 || brd <= 0) { alert("Values must be greater than zero."); return; }
+                const area = length * width; const spreadRate = area / massTonnes; const thickness = 1000 / (brd * spreadRate); 
+                const entry = { id: uid(), t: new Date().toISOString(), company: rawCompanyVal.value, customer: rawCustomerVal.value, registration: rawRegVal.value, material: rawMixVal.value, truck: rawTicketVal.value, tonnage: massTonnes, length: length, width: width, area: area, spreadRate: spreadRate, density: brd, thickness: thickness };
+                await idbPut(entry); await renderLogs(); mathModal.classList.add('hidden'); setStatus(`LOGGED TICKET ${entry.truck}`, true);
+            });
+         
+            async function decodeCanvasOrBlob(source){
+              let canvas; if(source instanceof HTMLCanvasElement) canvas = source; else { const img = new Image(); canvas = await new Promise((res, rej)=>{ img.onload = ()=> { const c = document.createElement('canvas'); c.width = img.width; c.height = img.height; c.getContext('2d').drawImage(img,0,0); URL.revokeObjectURL(img.src); res(c); }; img.onerror = rej; img.src = URL.createObjectURL(source); }); }
+              try { if(window.jsQR){ const ctx = canvas.getContext('2d'); const imgData = ctx.getImageData(0,0,canvas.width,canvas.height); const res = jsQR(imgData.data, imgData.width, imgData.height); if(res && res.data) return res.data; } } catch(e){}
+              try { const ReaderClass = window.ZXing?.BrowserQRCodeReader || window.BrowserMultiFormatReader; if(ReaderClass){ const reader = new ReaderClass(); const blob = await new Promise(r=> canvas.toBlob(r,'image/png')); const url = URL.createObjectURL(blob); const result = await reader.decodeFromImageUrl(url); URL.revokeObjectURL(url); if(result && result.text) return result.text; } } catch(e){} return null;
+            }
+         
+            function sleep(ms){ return new Promise(r=>setTimeout(r,ms)); }
+            async function waitForVideoReady(v){ const start = Date.now(); while ((v.readyState < 2) && (Date.now() - start) < 3000) await sleep(100); }
+         
+            openInApp.addEventListener('click', async ()=>{
+              try { const constraints = { video: { facingMode: { ideal:'environment' } }, audio:false }; video.srcObject = await navigator.mediaDevices.getUserMedia(constraints); await waitForVideoReady(video); cameraWrap.classList.remove('hidden'); video.classList.remove('hidden'); closeInApp.classList.remove('hidden'); captureBtn.classList.remove('hidden'); openInApp.classList.add('hidden'); setStatus('ALIGN QR AND PRESS EXTRACT', true); } catch(e){ setStatus('CAMERA UNAVAILABLE', false); }
+            });
+            closeInApp.addEventListener('click', ()=>{ if(video.srcObject) video.srcObject.getTracks().forEach(t=>t.stop()); video.srcObject = null; cameraWrap.classList.add('hidden'); video.classList.add('hidden'); closeInApp.classList.add('hidden'); captureBtn.classList.add('hidden'); openInApp.classList.remove('hidden'); setStatus('SYSTEM IDLE', false); });
+            captureBtn.addEventListener('click', async ()=>{ if(!video.srcObject) return; const side = Math.min(video.videoWidth, video.videoHeight); const sx = (video.videoWidth - side) / 2; const sy = (video.videoHeight - side) / 2; preview.width = side; preview.height = side; const ctx = preview.getContext('2d'); ctx.drawImage(video, sx, sy, side, side, 0, 0, side, side); setStatus('DECRYPTING TICKET...', true); const blob = await new Promise(r=> preview.toBlob(r,'image/jpeg', 0.9)); const text = await decodeCanvasOrBlob(blob); if(text) await handleDecodedText(text); else setStatus('SCAN FAILED. RETRY.', false); });
+            openNative.addEventListener('click', ()=> cameraInput.click());
+            cameraInput.addEventListener('change', async ev=>{ const f = ev.target.files && ev.target.files[0]; if(!f) return; setStatus('DECRYPTING TICKET...', true); const text = await decodeCanvasOrBlob(f); if(text) await handleDecodedText(text); else setStatus('SCAN FAILED. RETRY.', false); cameraInput.value = ''; });
+         
+            function logsToCSV(rows){
+              const header = ['Scan Date','Scan Time','Company','Client','Registration','Mix Type','Ticket','Mass (t)','Length (m)','Width (m)','Area (m2)','Spread Rate (m2/t)','Target BRD (t/m3)','Est. Thickness (mm)']; const lines = [header.join(',')];
+              rows.forEach(r=>{ const dateObj = new Date(r.t); const dateStr = dateObj.toLocaleDateString(); const timeStr = dateObj.toLocaleTimeString(); lines.push([ dateStr, timeStr, r.company, r.customer, r.registration, r.material, r.truck, r.tonnage.toFixed(2), r.length.toFixed(2), r.width.toFixed(2), r.area.toFixed(2), r.spreadRate.toFixed(2), r.density.toFixed(2), r.thickness.toFixed(2) ].map(v => '"' + String(v).replace(/"/g,'""') + '"').join(',')); }); return lines.join('\n');
+            }
+         
+            function downloadBlob(filename, blob){ const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = filename; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url); }
+         
+            downloadDateBtn.addEventListener('click', async ()=>{ const date = exportDateInput.value; if(!date) return alert('Engine Error: Select Date First'); const logs = (await idbGetAll()).filter(l => l.t.slice(0,10) === date); if(!logs.length) return alert('No data for ' + date); downloadBlob(`TC_PaveOps_Report_${date}.csv`, new Blob([logsToCSV(logs)], {type:'text/csv'})); setStatus('REPORT EXPORTED', true); });
+            clearAllBtn.addEventListener('click', async ()=>{ if(confirm('WARNING: Are you sure you want to permanently format the Ledger?')){ const db = await openDb(); const tx = db.transaction(DB_STORE, 'readwrite'); tx.objectStore(DB_STORE).clear(); await renderLogs(); setStatus('LEDGER FORMATTED', false); } });
+         
+            renderLogs(); document.getElementById('exportDate').valueAsDate = new Date();
+        } // End bootAppEngine
+    })();
+    </script>
 </body>
 </html>
