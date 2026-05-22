@@ -1,0 +1,9 @@
+{
+  "name": "Ten Civils Pacing Engine",
+  "short_name": "Pacing Engine",
+  "start_url": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#020617",
+  "theme_color": "#020617"
+}
