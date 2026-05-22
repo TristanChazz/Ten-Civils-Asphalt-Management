@@ -13,6 +13,7 @@
       --bg-panel: #1e2630;
       --bg-input: #0d1117;
       --accent: #1f9d86;
+      --accent-hover: #19826f;
       --warning: #f59e0b;
       --danger: #e11d48;
       --text-main: #f8fafc;
@@ -89,7 +90,7 @@
     // --- 1. DOMAIN LOCK SECURITY ---
     (function() {
         const allowedDomains = [
-            "tencivils.titandigitallabs.com", 
+            "tencivilspaveops.netlify.app", // The official live production URL
             "localhost", 
             "127.0.0.1"
         ];
@@ -207,7 +208,7 @@
   <script>
   (function(){
     // --- 2. GUMROAD AUTHENTICATION & PERSISTENCE ---
-    const PRODUCT_PERMALINK = "YOUR_GUMROAD_PERMALINK"; // <-- CHANGE THIS TO YOUR ACTUAL PRODUCT URL ENDING
+    const PRODUCT_PERMALINK = "YOUR_GUMROAD_PERMALINK"; // <-- CHANGE THIS TO YOUR GUMROAD PRODUCT LINK ENDING
     
     const authGate = document.getElementById('authGate');
     const appInterface = document.getElementById('appInterface');
@@ -215,8 +216,8 @@
     const licenseInput = document.getElementById('licenseKey');
     const authError = document.getElementById('authError');
 
-    // Check if device is already authenticated
-    if(localStorage.getItem('titan_paveops_auth') === 'verified') {
+    // Persistent Login Check
+    if(localStorage.getItem('tc_paveops_auth') === 'verified') {
         authGate.style.display = 'none';
         appInterface.classList.remove('hidden');
         bootAppEngine();
@@ -248,8 +249,7 @@
                     return;
                 }
 
-                // Success! Drop the token and unlock.
-                localStorage.setItem('titan_paveops_auth', 'verified');
+                localStorage.setItem('tc_paveops_auth', 'verified');
                 authGate.style.display = 'none';
                 appInterface.classList.remove('hidden');
                 bootAppEngine();
@@ -268,7 +268,6 @@
     });
 
     // --- 3. THE CORE APPLICATION ENGINE ---
-    // Wrapped in a boot function so it doesn't try to access the camera before login
     function bootAppEngine() {
         function uid() { return Date.now().toString(36) + Math.random().toString(36).substring(2); }
         const DB_NAME = 'tc-paveops-db';
@@ -314,7 +313,7 @@
             const dateObj = new Date(l.t); const scanTime = dateObj.toLocaleDateString() + ' ' + dateObj.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
             card.innerHTML = `
               <div class="header-row"><div class="timestamp">Scanned: ${scanTime}</div><button class="danger del-btn" data-id="${l.id}">DEL</button></div>
-              <div style="margin-bottom: 8px;"><strong>Company:</strong> <span>${l.company}</span> <br><strong>Client:</strong> <span>${l.customer}</span> <br><strong>Product:</strong> <span>${l.material}</span> <br><strong>Ticket:</strong> <span>${l.truck}</span></div>
+              <div style="margin-bottom: 8px;"><strong>Company:</strong> <span>${l.company}</span> <br><strong>Client:</strong> <span>${l.customer}</span> <br><strong>Product:</strong> <span>${l.material}</span> <br><strong>Registration:</strong> <span>${l.registration}</span> <br><strong>Ticket:</strong> <span>${l.truck}</span></div>
               <div style="background: rgba(31, 157, 134, 0.05); padding: 10px; border-radius: 6px; border: 1px solid rgba(31, 157, 134, 0.2);">
                   <strong>Net Mass:</strong> <span>${parseFloat(l.tonnage).toFixed(2)}t</span> <br><strong>Spread Rate:</strong> <span>${parseFloat(l.spreadRate).toFixed(2)} m²/t</span> <br><strong style="color:var(--accent);">Thickness:</strong> <span class="highlight">${parseFloat(l.thickness).toFixed(1)} mm</span>
               </div>`;
@@ -330,7 +329,11 @@
           const company = extract(/Company:\s*([^\n\r]+)/i); const customer = extract(/Customer:\s*([^\n\r]+)/i) || extract(/Client:\s*([^\n\r]+)/i);
           const deliveryNote = extract(/DeliveryNote:\s*([^\n\r]+)/i) || extract(/Ticket:\s*([^\n\r]+)/i); const product = extract(/Product:\s*([^\n\r]+)/i) || extract(/Material:\s*([^\n\r]+)/i);
           const netMass = extract(/Net(?:\s*Mass\s*\(t\))?:\s*([\d.]+)/i) || extract(/Net:\s*([\d.]+)/i); const reg = extract(/Registration:\s*([^\n\r]+)/i);
-          if (deliveryNote || netMass || product) { parsed.company = company || 'Unknown'; parsed.customer = customer || 'TC Construction'; parsed.truck = deliveryNote || 'N/A'; parsed.material = product || 'Asphalt'; parsed.registration = reg || 'N/A'; parsed.tonnage = parseFloat(netMass) || 0; return parsed; }
+          const despatched = extract(/Despatched:\s*([^\n\r]+)/i) || extract(/DateTime:\s*([^\n\r]+)/i);
+          if (deliveryNote || netMass || product) { parsed.company = company || 'Unknown'; parsed.customer = customer || 'TC Construction'; parsed.truck = deliveryNote || 'N/A'; parsed.material = product || 'Asphalt'; parsed.registration = reg || 'N/A'; parsed.tonnage = parseFloat(netMass) || 0; if (despatched) parsed.time = despatched; return parsed; }
+          const parts = s.split(/[\n\r|;,]+/).map(p=>p.trim()).filter(Boolean);
+          if(parts.length >= 4) { parsed.time = parts[0]; parsed.material = parts[1]; parsed.truck = parts[2]; parsed.tonnage = parseFloat(parts[3] || 0); } 
+          else if(parts.length === 3) { parsed.material = parts[0]; parsed.truck = parts[1]; parsed.tonnage = parseFloat(parts[2] || 0); }
           return parsed;
         }
      
