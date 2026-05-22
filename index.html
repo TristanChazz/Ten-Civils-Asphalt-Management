@@ -88,11 +88,14 @@
 
   <script>
     // --- 1. DOMAIN LOCK SECURITY ---
+ <script>
+    // --- 1. DOMAIN LOCK SECURITY (MULTI-CLOUD) ---
     (function() {
         const allowedDomains = [
-            "tencivilspaveops.netlify.app", // The official live production URL
-            "localhost", 
-            "127.0.0.1"
+            "tencivilspaveops.netlify.app", // Primary Netlify Production
+            "tc-paveops.vercel.app",        // Backup Vercel Production (Update if you changed the Vercel name)
+            "localhost",                    // Local Testing
+            "127.0.0.1"                     // Local Testing
         ];
         
         const currentDomain = window.location.hostname;
