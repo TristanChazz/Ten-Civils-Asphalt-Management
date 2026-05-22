@@ -210,8 +210,8 @@
  
     <script>
     (function(){
-        // --- 1. GUMROAD AUTHENTICATION & PERSISTENCE ---
-        const PRODUCT_PERMALINK = "VQILqBURHyT069iSRdOirg=="; // INJECTED ID
+        // --- 1. GUMROAD AUTHENTICATION & PERSISTENCE (PACE OS STANDARD) ---
+        const PRODUCT_ID = "VQILqBURHyT069iSRdOirg=="; 
         
         const authGate = document.getElementById('authGate');
         const appInterface = document.getElementById('appInterface');
@@ -219,13 +219,20 @@
         const licenseInput = document.getElementById('licenseKey');
         const authError = document.getElementById('authError');
 
+        // Allow entering key with "Enter"
+        licenseInput.addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') verifyLicense();
+        });
+
         if(localStorage.getItem('tc_paveops_auth') === 'verified') {
             authGate.classList.add('hidden');
             appInterface.classList.remove('hidden');
             bootAppEngine();
         }
 
-        verifyBtn.addEventListener('click', async () => {
+        verifyBtn.addEventListener('click', verifyLicense);
+
+        async function verifyLicense() {
             const key = licenseInput.value.trim();
             if(!key) return;
             
@@ -234,14 +241,34 @@
             authError.classList.add('hidden');
 
             try {
-                const res = await fetch("https://api.gumroad.com/v2/licenses/verify", {
+                // PACE OS STANDARD DATA PAYLOAD
+                const params = new URLSearchParams();
+                params.append('product_id', PRODUCT_ID);
+                params.append('license_key', key);
+
+                const response = await fetch("https://api.gumroad.com/v2/licenses/verify", {
                     method: "POST",
                     headers: { "Content-Type": "application/x-www-form-urlencoded" },
-                    body: new URLSearchParams({ product_permalink: PRODUCT_PERMALINK, license_key: key })
+                    body: params
                 });
-                const data = await res.json();
+                const data = await response.json();
 
                 if (data.success && !data.purchase.refunded) {
+                    
+                    // PACE OS STANDARD SUBSCRIPTION CHECK
+                    if (data.purchase.subscription_cancelled_at || 
+                        data.purchase.subscription_failed_at || 
+                        data.purchase.subscription_ended_at) {
+                        
+                        console.log("Subscription inactive:", data.purchase);
+                        authError.innerText = "Access Denied. Subscription Expired.";
+                        authError.classList.remove('hidden');
+                        verifyBtn.innerText = "Verify & Unlock";
+                        verifyBtn.disabled = false;
+                        return;
+                    }
+
+                    // PIRACY TRAPDOOR
                     if (data.uses > 5) {
                         authError.innerText = "Access Denied. Key usage limit exceeded.";
                         authError.classList.remove('hidden');
@@ -249,23 +276,26 @@
                         verifyBtn.disabled = false;
                         return;
                     }
+
                     localStorage.setItem('tc_paveops_auth', 'verified');
                     authGate.classList.add('hidden');
                     appInterface.classList.remove('hidden');
                     bootAppEngine();
                 } else {
+                    console.log("API Rejected:", data);
                     authError.innerText = "Invalid or Refunded License Key.";
                     authError.classList.remove('hidden');
                     verifyBtn.innerText = "Verify & Unlock";
                     verifyBtn.disabled = false;
                 }
             } catch(e) {
+                console.error("Fetch Error:", e);
                 authError.innerText = "Connection error. Are you offline?";
                 authError.classList.remove('hidden');
                 verifyBtn.innerText = "Verify & Unlock";
                 verifyBtn.disabled = false;
             }
-        });
+        }
 
         // --- 2. CORE APPLICATION ENGINE ---
         function bootAppEngine() {
