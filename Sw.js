@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'tc-paveops-prod-v1'; // Final production cache bump
+const CACHE_VERSION = 'tc-paveops-prod-v2'; // Forced cache bump for Tailwind UI Update
 
 const APP_SHELL = [
   './',
@@ -6,14 +6,14 @@ const APP_SHELL = [
   './manifest.json',
   './libs/jsqr.min.js',
   './libs/zxing.min.js',
-  './assets/tc-logo.png' // Ensures the logo remains visible deep on site without signal
+  './assets/tc-logo.png' 
 ];
  
 self.addEventListener('install', event => {
   self.skipWaiting();
   event.waitUntil(
     caches.open(CACHE_VERSION).then(cache => {
-      console.log('[SW] Pre-caching TC Pave Ops Production Shell');
+      console.log('[SW] Pre-caching TC Pave Ops Production Shell v2');
       return cache.addAll(APP_SHELL);
     })
   );
