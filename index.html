@@ -86,22 +86,29 @@
     .footer-brand { text-align: center; margin-top: 40px; font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 2px; padding-bottom: 20px;}
   </style>
 
-  <script>
+ <script>
     // --- 1. DOMAIN LOCK SECURITY (MULTI-CLOUD) ---
     (function() {
         const allowedDomains = [
-            "tencivilspaveops.netlify.app", 
-            "tc-paveops.vercel.app", 
-            "localhost", 
-            "127.0.0.1"
+            "tristanchazz.github.io",       // GitHub Pages Production
+            "tencivilspaveops.netlify.app", // Netlify Production
+            "tc-paveops.vercel.app",        // Vercel Production
+            "localhost",                    // Local Testing
+            "127.0.0.1"                     // Local Testing
         ];
         
         const currentDomain = window.location.hostname;
         const isAllowed = allowedDomains.some(domain => currentDomain.includes(domain));
         
         if (!isAllowed) {
-            document.write("<h1 style='color:red; text-align:center; font-family:sans-serif; margin-top:20%;'>SECURITY BREACH: UNAUTHORIZED HOST</h1><p style='text-align:center; color:white; font-family:sans-serif;'>This software is locked to Titan Digital Labs infrastructure. Access Denied.</p>");
-            while(true) { debugger; } 
+            // Instantly stop the browser from processing any more HTML
+            window.stop(); 
+            
+            // Paint the security warning cleanly on the screen
+            document.documentElement.innerHTML = "<head><title>Access Denied</title></head><body style='background:#151b22; color:#e11d48; display:flex; flex-direction:column; align-items:center; justify-content:center; height:100vh; font-family:sans-serif; margin:0; text-align:center; padding:20px;'><h1 style='font-weight:900; letter-spacing:2px; text-transform:uppercase;'>Security Breach:<br>Unauthorized Host</h1><p style='color:#f8fafc; margin-top:10px;'>This software is locked to Titan Digital Labs infrastructure. Access Denied.</p></body>";
+            
+            // Throw a fatal JavaScript error to kill the rest of the application silently
+            throw new Error("Security Override: Execution Halted.");
         }
     })();
   </script>
