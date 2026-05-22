@@ -25,7 +25,7 @@
     
     /* CUSTOM LOGO HEADER */
     header { background: var(--bg-panel); color: var(--text-main); padding: 18px 20px; display: flex; align-items: center; justify-content: center; gap: 12px; border-bottom: 1px solid var(--accent); }
-    header img { height: 52px; object-fit: contain; }
+    header img { height: 32px; object-fit: contain; }
     header h2 { margin: 0; font-size: 1.2rem; text-transform: uppercase; letter-spacing: 2px; font-weight: 800; }
     header span { color: var(--accent); }
     
@@ -42,7 +42,7 @@
     /* SECURITY GATE STYLES */
     #authGate { position: fixed; inset: 0; background: var(--bg-main); z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; }
     .auth-box { background: var(--bg-panel); padding: 30px; border-radius: 12px; border: 1px solid var(--border); max-width: 400px; width: 100%; text-align: center; box-shadow: 0 10px 40px rgba(0,0,0,0.8); }
-    .auth-box img { height: 62px; margin-bottom: 15px; }
+    .auth-box img { height: 40px; margin-bottom: 15px; }
     .auth-box input { width: 100%; padding: 12px; margin: 15px 0; background: var(--bg-input); border: 1px solid var(--border); color: var(--text-main); border-radius: 6px; font-size: 1rem; box-sizing: border-box; text-align: center; letter-spacing: 1px; }
     .auth-box input:focus { border-color: var(--accent); outline: none; }
     #authError { color: var(--danger); font-size: 0.85rem; margin-top: 10px; font-weight: bold; }
@@ -87,15 +87,13 @@
   </style>
 
   <script>
-    // --- 1. DOMAIN LOCK SECURITY ---
- <script>
     // --- 1. DOMAIN LOCK SECURITY (MULTI-CLOUD) ---
     (function() {
         const allowedDomains = [
-            "tencivilspaveops.netlify.app", // Primary Netlify Production
-            "tc-paveops.vercel.app",        // Backup Vercel Production (Update if you changed the Vercel name)
-            "localhost",                    // Local Testing
-            "127.0.0.1"                     // Local Testing
+            "tencivilspaveops.netlify.app", 
+            "tc-paveops.vercel.app", 
+            "localhost", 
+            "127.0.0.1"
         ];
         
         const currentDomain = window.location.hostname;
@@ -211,7 +209,7 @@
   <script>
   (function(){
     // --- 2. GUMROAD AUTHENTICATION & PERSISTENCE ---
-    const PRODUCT_PERMALINK = "YOUR_GUMROAD_PERMALINK"; // <-- CHANGE THIS TO YOUR GUMROAD PRODUCT LINK ENDING
+    const PRODUCT_PERMALINK = "VQILqBURHyT069iSRdOirg=="; // INJECTED GUMROAD ID
     
     const authGate = document.getElementById('authGate');
     const appInterface = document.getElementById('appInterface');
