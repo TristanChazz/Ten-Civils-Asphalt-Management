@@ -3,17 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>TC Construction | Pave Ops</title>
+    <title>Titan Consolidated | Pave Ops</title>
     <meta name="theme-color" content="#151b22">
     <link rel="manifest" href="manifest.json">
     
-    <!-- DOMAIN LOCK SECURITY (MULTI-CLOUD) -->
+    <!-- DOMAIN LOCK SECURITY -->
     <script>
         (function() {
             const allowedDomains = [
                 "tristanchazz.github.io", 
                 "tencivilspaveops.netlify.app", 
-                "ten-civils-asphalt-management.vercel.app", // Hard-locked to your specific Vercel instance
+                "ten-civils-asphalt-management.vercel.app",
                 "localhost", 
                 "127.0.0.1"
             ];
@@ -85,7 +85,7 @@
     <!-- THE AUTHENTICATION GATE -->
     <div id="authGate" class="max-w-md mx-auto mt-20 bg-themepanel p-8 rounded-2xl border border-themeborder shadow-[0_0_50px_rgba(0,0,0,0.5)] text-center relative overflow-hidden flex flex-col items-center">
         <div class="absolute top-0 left-0 w-full h-1 bg-themeaccent"></div>
-        <img src="assets/tc-logo.png" alt="TC Construction Logo" class="h-12 mb-4" onerror="this.style.display='none'">
+        <img src="assets/tc-logo.png" alt="Corporate Logo" class="h-12 mb-4" onerror="this.style.display='none'">
         <h2 class="text-2xl font-black uppercase tracking-widest text-themetext mb-2">Pave Ops Access</h2>
         <p class="text-thememuted mb-6 text-sm">Enter your enterprise license key to unlock the environment.</p>
         <input type="text" id="licenseKey" placeholder="XXXX-XXXX-XXXX-XXXX" class="w-full bg-themeinput border border-themeborder rounded-xl p-4 text-themeaccent text-center font-code tracking-widest mb-6 focus:ring-2 focus:ring-themeaccent outline-none shadow-inner transition-all">
@@ -97,7 +97,7 @@
     <div id="appInterface" class="max-w-3xl mx-auto hidden pb-10">
         
         <div class="mb-8 flex flex-col justify-center items-center border-b border-themeborder pb-6 gap-2 text-center relative">
-            <img src="assets/tc-logo.png" alt="TC Construction" class="h-10 mb-2" onerror="this.style.display='none'">
+            <img src="assets/tc-logo.png" alt="Corporate Logo" class="h-10 mb-2" onerror="this.style.display='none'">
             <h1 class="text-2xl md:text-3xl font-black uppercase tracking-tighter text-themetext drop-shadow-md">
                 Pave<span class="text-themeaccent">Ops</span> Engine
             </h1>
@@ -190,7 +190,6 @@
                 
                 <!-- THE LIABILITY & RECONCILIATION GATES -->
                 <div class="bg-amber-950/20 border border-amber-900/50 p-4 rounded-xl mt-2 space-y-4">
-                    
                     <!-- CUTBACK GATE -->
                     <div>
                         <label class="block text-[10px] font-code uppercase tracking-widest text-amber-500 mb-2 font-bold">Are Cutbacks included in main dimensions?</label>
@@ -431,21 +430,33 @@
             }
          
             function parseDecoded(text){
-              const s = (text||'').trim(); 
+              // Normalizing the chaotic string structure
+              const s = (text||'').trim().replace(/\n|\r/g, ' ').replace(/\s{2,}/g, ' '); 
               let parsed = { time: new Date().toISOString(), company: 'Unknown', customer: 'Unknown', material: 'Unknown Mix', truck: 'Unknown', registration: 'Unknown', tonnage: 0, raw: s };
               
-             
-              // 2. The Bulletproof Lookahead Dictionary (MUCH ASPHALT EXPANDED)
-            const getVal = (keywords) => {
-                // We added Plant, Job, Cartage by, Location, BC, Temp, Order, Tare, Gross, and EPC to the boundary stops.
-                const regexStr = `(?:${keywords})\\s*[:\\-]?\\s*(.+?)(?=\\s*(?:Company|Co|Customer|Client|DeliveryNote|Ticket|Tkt|Product|Material|Mix|Net|Mass|Weight|Registration|Reg|Despatched|DateTime|Date|Time|Plant|Job|Cartage by|Location|BC|Temp|Order|Tare|Gross|EPC)\\s*[:\\-]|$)`;
-                const match = s.match(new RegExp(regexStr, 'i'));
-                return match ? match[1].trim() : null;
-            };
+              // Expanded Lookahead Dictionary covering all Much Asphalt specific noise variables
+              const getVal = (keywords) => {
+                  const regexStr = `(?:${keywords})\\s*[:\\-]?\\s*(.+?)(?=\\s*(?:Company|Co|Customer|Client|DeliveryNote|Ticket|Tkt|Product|Material|Mix|Net|Mass|Weight|Registration|Reg|Despatched|DateTime|Date|Time|Plant|Job|Cartage by|Location|BC|Temp|Order|Tare|Gross|EPC)\\s*[:\\-]|$)`;
+                  const match = s.match(new RegExp(regexStr, 'i'));
+                  return match ? match[1].trim() : null;
+              };
+
+              parsed.company = getVal('Company|Co') || 'Unknown';
+              parsed.customer = getVal('Customer|Client') || 'Unknown';
+              parsed.truck = getVal('DeliveryNote|Ticket|Tkt|Note') || 'Unknown';
+              parsed.material = getVal('Product|Material|Mix') || 'Unknown';
+              parsed.registration = getVal('Registration|Reg|Vehicle') || 'Unknown';
               
-              const parts = s.split(/[\n\r|;,]+/).map(p=>p.trim()).filter(Boolean);
-              if(parts.length >= 4) { parsed.time = parts[0]; parsed.material = parts[1]; parsed.truck = parts[2]; parsed.tonnage = parseFloat(parts[3] || 0); } 
-              else if(parts.length === 3) { parsed.material = parts[0]; parsed.truck = parts[1]; parsed.tonnage = parseFloat(parts[2] || 0); }
+              // Aggressive Two-Stage Numeric Scrubbing for Net Mass
+              let rawMass = getVal('Net\\s*Mass|Net|Mass|Weight');
+              if (!rawMass) {
+                  const fallback = s.match(/(?:Net|Mass|Weight)[^\d]*([\d.]+)/i);
+                  rawMass = fallback ? fallback[1] : "0";
+              }
+              parsed.tonnage = parseFloat(rawMass.replace(/[^\d.]/g, '')) || 0;
+              
+              const timeVal = getVal('Despatched|DateTime|Date|Time');
+              if(timeVal) parsed.time = timeVal;
               
               return parsed;
             }
