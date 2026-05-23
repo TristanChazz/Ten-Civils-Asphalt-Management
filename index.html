@@ -434,27 +434,14 @@
               const s = (text||'').trim(); 
               let parsed = { time: new Date().toISOString(), company: 'Unknown', customer: 'Unknown', material: 'Unknown Mix', truck: 'Unknown', registration: 'Unknown', tonnage: 0, raw: s };
               
-              // BULLETPROOF REGEX: Uses Lookaheads to stop extracting when it sees the next keyword.
-              const extract = (regex) => { const match = s.match(regex); return match ? match[1].trim() : null; };
-              
-              const company = extract(/(?:Company):\s*(.+?)(?=\s*(?:Client|Customer|DeliveryNote|Ticket|Product|Material|Net|Registration|Despatched|DateTime):|$)/i);
-              const customer = extract(/(?:Customer|Client):\s*(.+?)(?=\s*(?:Company|DeliveryNote|Ticket|Product|Material|Net|Registration|Despatched|DateTime):|$)/i);
-              const deliveryNote = extract(/(?:DeliveryNote|Ticket):\s*(.+?)(?=\s*(?:Company|Customer|Client|Product|Material|Net|Registration|Despatched|DateTime):|$)/i);
-              const product = extract(/(?:Product|Material):\s*(.+?)(?=\s*(?:Company|Customer|Client|DeliveryNote|Ticket|Net|Registration|Despatched|DateTime):|$)/i);
-              const netMass = extract(/(?:Net(?:\s*Mass\s*\(t\))?|Net):\s*([\d.]+)/i);
-              const reg = extract(/Registration:\s*(.+?)(?=\s*(?:Company|Customer|Client|DeliveryNote|Ticket|Product|Material|Net|Despatched|DateTime):|$)/i);
-              const despatched = extract(/(?:Despatched|DateTime):\s*(.+?)(?=\s*(?:Company|Customer|Client|DeliveryNote|Ticket|Product|Material|Net|Registration):|$)/i);
-
-              if (deliveryNote || netMass || product) { 
-                  parsed.company = company || 'Unknown'; 
-                  parsed.customer = customer || 'TC Construction'; 
-                  parsed.truck = deliveryNote || 'N/A'; 
-                  parsed.material = product || 'Asphalt'; 
-                  parsed.registration = reg || 'N/A'; 
-                  parsed.tonnage = parseFloat(netMass) || 0; 
-                  if (despatched) parsed.time = despatched; 
-                  return parsed; 
-              }
+             
+              // 2. The Bulletproof Lookahead Dictionary (MUCH ASPHALT EXPANDED)
+            const getVal = (keywords) => {
+                // We added Plant, Job, Cartage by, Location, BC, Temp, Order, Tare, Gross, and EPC to the boundary stops.
+                const regexStr = `(?:${keywords})\\s*[:\\-]?\\s*(.+?)(?=\\s*(?:Company|Co|Customer|Client|DeliveryNote|Ticket|Tkt|Product|Material|Mix|Net|Mass|Weight|Registration|Reg|Despatched|DateTime|Date|Time|Plant|Job|Cartage by|Location|BC|Temp|Order|Tare|Gross|EPC)\\s*[:\\-]|$)`;
+                const match = s.match(new RegExp(regexStr, 'i'));
+                return match ? match[1].trim() : null;
+            };
               
               const parts = s.split(/[\n\r|;,]+/).map(p=>p.trim()).filter(Boolean);
               if(parts.length >= 4) { parsed.time = parts[0]; parsed.material = parts[1]; parsed.truck = parts[2]; parsed.tonnage = parseFloat(parts[3] || 0); } 
